@@ -4,10 +4,15 @@ namespace Spotler;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
+use Kemp\Modules\Contact;
 
 /**
  * Class SpotlerClient
- * @package Spotler
+ *
+ * @package   spotler-client
+ * @author    Stephan Eizinga <stephan@monkeysoft.nl>
+ * @copyright 2019 Stephan Eizinga
+ * @link      https://github.com/steffjenl/spotler-client
  */
 class SpotlerClient
 {
@@ -32,6 +37,13 @@ class SpotlerClient
      */
     private $responseBody;
 
+
+    public $contact;
+
+    public $campaign;
+
+    public $campaignMailing;
+
     /**
      * SpotlerClient constructor.
      * @param string $key
@@ -42,6 +54,8 @@ class SpotlerClient
         $this->consumerKey = $key;
         $this->consumerSecret = $secret;
         $this->createGuzzleClient($this->createHandlerStack());
+        $this->contact = new Contact($this);
+
     }
 
     /**

@@ -32,7 +32,7 @@ class SpotlerServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $this->app->singleton(
             SpotlerClient::class, function ($app) {
-            return new SpotlerClient(config('spotler.consumerKey'), config('spotler.consumerSecret'));
+            return new SpotlerClient(config('services.spotler.consumerKey'), config('services.spotler.consumerSecret'));
         }
         );
     }

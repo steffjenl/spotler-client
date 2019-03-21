@@ -1,15 +1,30 @@
 <?php
-namespace Kemp\Modules;
+namespace Spotler\Modules;
 
-use Spotler\SpotlerClient;
+use Spotler\Models\ContactRequest;
 
-class Contact
+/**
+ * Class Contact
+ *
+ * @package   spotler-client
+ * @author    Stephan Eizinga <stephan@monkeysoft.nl>
+ * @copyright 2019 Stephan Eizinga
+ * @link      https://github.com/steffjenl/spotler-client
+ */
+class Contact extends AbstractModule
 {
-    private $client;
-
-    public function __construct(SpotlerClient $client)
+    /**
+     * @param ContactRequest $contactRequest
+     * @return bool
+     * @throws \Spotler\Exceptions\SpotlerException
+     */
+    public function postContact(ContactRequest $contactRequest)
     {
-        $this->client = $client;
+        $response   = $this->client->execute('/integrationservice-1.1.0/contact', 'POST', $contactRequest);
+        if ($response->getStatusCode() == 204)
+        {
+            return true;
+        }
+        return false;
     }
-
 }

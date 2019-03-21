@@ -3,8 +3,12 @@ namespace Spotler;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
-use Kemp\Modules\Contact;
+use Spotler\Exceptions\SpotlerException;
+use Spotler\Modules\Contact;
+use Spotler\Modules\Campaign;
+use Spotler\Modules\CampaignMailing;
 
 /**
  * Class SpotlerClient
@@ -37,12 +41,20 @@ class SpotlerClient
      */
     private $responseBody;
 
+    /**
+     * @var Contact
+     */
+    private $contact;
 
-    public $contact;
+    /**
+     * @var
+     */
+    private $campaign;
 
-    public $campaign;
-
-    public $campaignMailing;
+    /**
+     * @var
+     */
+    private $campaignMailing;
 
     /**
      * SpotlerClient constructor.
@@ -55,40 +67,75 @@ class SpotlerClient
         $this->consumerSecret = $secret;
         $this->createGuzzleClient($this->createHandlerStack());
         $this->contact = new Contact($this);
-
+        $this->campaign = new Campaign($this);
+        $this->campaignMailing = new CampaignMailing($this);
     }
 
     /**
      * @param $endpoint
      * @param string $method
-     * @param null $data
+     * @param array $data
      * @return mixed
+     * @throws SpotlerException
+     * @throws \Exception
      */
     public function execute($endpoint, $method = 'GET', $data = null)
     {
-        $response = $this->guzzleClient->request(
-            $method
-            ,$endpoint
-            ,[
-                'auth' => 'oauth',
-                'json' => $data
-            ]
-        );
+        try
+        {
+            $response = $this->guzzleClient->request(
+                $method
+                ,$endpoint
+                ,[
+                    'auth' => 'oauth',
+                    'json' => $data
+                ]
+            );
 
-        $this->responseCode = $response->getStatusCode();
-        $this->responseBody = $response->getBody();
+            $this->responseCode = $response->getStatusCode();
+            $this->responseBody = $response->getBody();
 
-        return $response->getBody()->getContents();
+            return $response;
+        }
+        catch (GuzzleException $ex)
+        {
+            throw new SpotlerException($ex);
+        }
+        catch (\Exception $ex)
+        {
+            throw new SpotlerException($ex);
+        }
     }
 
+    /**
+     * @return int
+     */
     public function getLastResponseCode()
     {
         return $this->responseCode;
     }
 
+    /**
+     * @return mixed
+     */
     public function getLastResponseBody()
     {
         return $this->responseBody;
+    }
+
+    public function contact()
+    {
+        return $this->contact;
+    }
+
+    public function campaign()
+    {
+        return $this->campaign;
+    }
+
+    public function campaignMailing()
+    {
+        return $this->campaignMailing;
     }
 
     /**
@@ -114,7 +161,7 @@ class SpotlerClient
      */
     private function createGuzzleClient($handlerStack)
     {
-        $this->client = new Client([
+        $this->guzzleClient = new Client([
             'base_uri' => 'https://restapi.mailplus.nl/',
             'handler' => $handlerStack,
             'headers' => [

@@ -16,7 +16,9 @@
   },
   "require": {
     "guzzlehttp/guzzle": "^6.3",
-    "guzzlehttp/oauth-subscriber": "^0.3.0"
+    "guzzlehttp/oauth-subscriber": "^0.3.0",
+    "ext-curl": "*",
+    "ext-json": "*"
   },
   "license": "MIT",
   "authors": [

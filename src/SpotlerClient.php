@@ -24,18 +24,22 @@ class SpotlerClient
      * @var string
      */
     private $consumerKey;
+
     /**
      * @var string
      */
     private $consumerSecret;
+
     /**
      * @var $guzzleClient Client
      */
     private $guzzleClient;
+
     /**
      * @var $responseCode int
      */
     private $responseCode;
+
     /**
      * @var $responseBody
      */
@@ -47,12 +51,12 @@ class SpotlerClient
     private $contact;
 
     /**
-     * @var
+     * @var Campaign
      */
     private $campaign;
 
     /**
-     * @var
+     * @var CampaignMailing
      */
     private $campaignMailing;
 
@@ -123,16 +127,25 @@ class SpotlerClient
         return $this->responseBody;
     }
 
+    /**
+     * @return Contact
+     */
     public function contact()
     {
         return $this->contact;
     }
 
+    /**
+     * @return Campaign
+     */
     public function campaign()
     {
         return $this->campaign;
     }
 
+    /**
+     * @return CampaignMailing
+     */
     public function campaignMailing()
     {
         return $this->campaignMailing;

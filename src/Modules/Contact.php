@@ -21,7 +21,7 @@ class Contact extends AbstractModule
     public function postContact(ContactRequest $contactRequest)
     {
         $response   = $this->client->execute('/integrationservice-1.1.0/contact', 'POST', $contactRequest);
-        if ($response->getStatusCode() == 204)
+        if ($this->client->getLastResponseCode() == 204)
         {
             return true;
         }

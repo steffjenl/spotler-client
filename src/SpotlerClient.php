@@ -1,10 +1,6 @@
 <?php
 namespace Spotler;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Spotler\Exceptions\SpotlerException;
 use Spotler\Modules\Contact;
 use Spotler\Modules\Campaign;
@@ -31,9 +27,9 @@ class SpotlerClient
     private $consumerSecret;
 
     /**
-     * @var $guzzleClient Client
+     * @var $client Client
      */
-    private $guzzleClient;
+    private $client;
 
     /**
      * @var $responseCode int
@@ -69,7 +65,7 @@ class SpotlerClient
     {
         $this->consumerKey = $key;
         $this->consumerSecret = $secret;
-        $this->createGuzzleClient($this->createHandlerStack());
+        $this->client = new Client($this->consumerKey, $this->consumerSecret);
         $this->contact = new Contact($this);
         $this->campaign = new Campaign($this);
         $this->campaignMailing = new CampaignMailing($this);
@@ -87,23 +83,42 @@ class SpotlerClient
     {
         try
         {
-            $response = $this->guzzleClient->request(
-                $method
-                ,$endpoint
-                ,[
-                    'auth' => 'oauth',
-                    'json' => $data
-                ]
-            );
+            $response = $this->client->execute($endpoint, $method, $data);
+            $this->responseCode = $this->client->getLastResponseCode();
+            $this->responseBody = $this->client->getLastResponseBody();
 
-            $this->responseCode = $response->getStatusCode();
-            $this->responseBody = $response->getBody();
+            // Status code 204 is Success without content
+            if ($this->client->getLastResponseCode() == 404)
+            {
+                throw new SpotlerException(sprintf('Endpoint %s not found', $endpoint),404);
+            }
+            // Status code 204 is Success without content
+            else if ($this->client->getLastResponseCode() == 204)
+            {
+                return true;
+            }
+            else if ($this->client->getLastResponseCode() > 299)
+            {
+                $data = json_decode($response);
+                if ($data === null)
+                {
+                    throw new SpotlerException('System error on spotler server',$this->client->getLastResponseCode());
+                }
 
-            return $response;
-        }
-        catch (GuzzleException $ex)
-        {
-            throw new SpotlerException($ex);
+                $message = sprintf('Message: %s\nType: %s', $data->message, $data->errorType);
+                throw new SpotlerException($message,$this->client->getLastResponseCode());
+            }
+
+            // decode json string to stdObject
+            $data = json_decode($response);
+
+            // when no valid json response we will return false
+            if ($data === null)
+            {
+                return false;
+            }
+
+            return $data;
         }
         catch (\Exception $ex)
         {
@@ -150,38 +165,4 @@ class SpotlerClient
     {
         return $this->campaignMailing;
     }
-
-    /**
-     * @return HandlerStack
-     */
-    private function createHandlerStack()
-    {
-        $handlerStack = HandlerStack::create();
-        $middleware = new Oauth1([
-            'consumer_key'    => $this->consumerKey,
-            'consumer_secret' => $this->consumerSecret,
-            'signature_method' => Oauth1::SIGNATURE_METHOD_HMAC,
-            'token_secret' => null,
-        ]);
-
-        $handlerStack->push($middleware);
-
-        return $handlerStack;
-    }
-
-    /**
-     * @param $handlerStack
-     */
-    private function createGuzzleClient($handlerStack)
-    {
-        $this->guzzleClient = new Client([
-            'base_uri' => 'https://restapi.mailplus.nl/',
-            'handler' => $handlerStack,
-            'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ],
-        ]);
-    }
-
 }

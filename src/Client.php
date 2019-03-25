@@ -24,7 +24,7 @@ class Client
     /**
      * @var string $bashUrl
      */
-    private $bashUrl = 'https://restapi.mailplus.nl/integrationservice-1.1.0';
+    private $bashUrl = 'https://restapi.mailplus.nl';
     /**
      * @var string $certificate
      */
@@ -81,6 +81,7 @@ class Client
     public function execute($endpoint, $method = 'GET', $data = null)
     {
         $headers = [
+            "Accept: application/json",
             "Content-Type: application/json",
             "Authorization: " . $this->createAuthorizationHeader($method, $endpoint),
         ];
@@ -96,14 +97,13 @@ class Client
         $curl = $this->setVerifyHostCertificate($curl);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         $response = curl_exec($curl);
-        if (!$response) {
+        $this->responseBody = $response;
+        $this->responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        // when $response return false we have a critical error
+        if ($response === false) {
             throw new SpotlerException(curl_error($curl), curl_errno($curl));
         }
         curl_close($curl);
-
-        $this->responseBody = $response;
-        $this->responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
         return $response;
     }
 

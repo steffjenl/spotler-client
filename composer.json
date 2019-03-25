@@ -1,6 +1,6 @@
 {
   "name": "steffjenl/spotler-client",
-  "description": "PHP package for Spotler API",
+  "description": "PHP Client for Spotler (spotler.nl) with support for Laravel 5.5 and higher",
   "type": "library",
   "keywords": [
     "spotler",

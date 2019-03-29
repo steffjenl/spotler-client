@@ -47,13 +47,21 @@ class Contact
      */
     public $temporary;
     /**
-     * @var
+     * @var \stdClass
      */
     public $properties;
     /**
      * @var array
      */
     public $channels = [];
+
+    /**
+     * Contact constructor.
+     */
+    public function __construct()
+    {
+        $this->properties = new \stdClass();
+    }
 
     /**
      * setProperty

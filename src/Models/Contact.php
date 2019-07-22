@@ -89,10 +89,15 @@ class Contact
      * setChannel
      * Set Channel with Contact::CONTACT_CHANNEL_SMS or/and Contact::CONTACT_CHANNEL_EMAIL
      *
-     * @param $channel
+     * @param string $channelName
+     * @param boolean $value
      */
-    public function setChannel($channel)
+    public function setChannel($channelName, $value = true)
     {
+        $channel = new \stdClass();
+        $channel->name = $channelName;
+        $channel->value = true;
         $this->channels[] = $channel;
+
     }
 }

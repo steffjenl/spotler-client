@@ -27,4 +27,18 @@ class Contact extends AbstractModule
         }
         return false;
     }
+
+    /**
+     * @return array|bool
+     * @throws \Spotler\Exceptions\SpotlerException
+     */
+    public function getProperties()
+    {
+        $response   = $this->client->execute('/integrationservice-1.1.0/contact/properties/list', 'GET');
+        if ($this->client->getLastResponseCode() == 200)
+        {
+            return $response;
+        }
+        return false;
+    }
 }

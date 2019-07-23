@@ -61,6 +61,29 @@ class Contact
     public function __construct()
     {
         $this->properties = new \stdClass();
+        $this->properties->permissions = [];
+    }
+
+    /**
+     * setProperty
+     *
+     * @param int $bit
+     * @param boolean $value
+     */
+    public function setPermission($bit, $enabled)
+    {
+        $found_key = array_search($bit, array_column($this->properties->permissions, 'bit'));
+        if ($found_key !== false)
+        {
+            $this->properties->permissions[$found_key]['enabled'] = $enabled;
+            return $this;
+        }
+
+        $permission = [];
+        $permission['bit'] = $bit;
+        $permission['enabled'] = $enabled;
+        $this->properties->permissions[] = $permission;
+        return $this;
     }
 
     /**
@@ -72,6 +95,7 @@ class Contact
     public function setProperty($name, $value)
     {
         $this->properties->{$name} = $value;
+        return $this;
     }
 
     /**
@@ -83,6 +107,32 @@ class Contact
     public function getProperty($name)
     {
         return $this->properties->{$name};
+    }
+
+    /**
+     * getPermission
+     *
+     * @param $name
+     * @return mixed
+     */
+    public function getPermission($bit)
+    {
+        $found_key = array_search($bit, array_column($this->properties->permissions, 'bit'));
+        if ($found_key !== false)
+        {
+            return  $this->properties->permissions[$found_key];
+        }
+        return false;
+    }
+
+    /**
+     * getPermissions
+     *
+     * @return mixed
+     */
+    public function getPermissions()
+    {
+        return  $this->properties->permissions;
     }
 
     /**

@@ -19,7 +19,7 @@ class Campaign extends AbstractModule
      */
     public function getList()
     {
-        $response   = $this->client->execute('/integrationservice-1.1.0/campaign/list', 'GET');
+        $response   = $this->client->execute('integrationservice-1.1.0/campaign/list', 'GET');
         return $response;
     }
 
@@ -31,7 +31,7 @@ class Campaign extends AbstractModule
      */
     public function postCampaignTrigger($encryptedTriggerId, CampaignTriggerRequest $campaignTriggerRequest)
     {
-        $response   = $this->client->execute('/integrationservice-1.1.0/campaign/trigger/' . $encryptedTriggerId, 'POST', $campaignTriggerRequest);
+        $response   = $this->client->execute('integrationservice-1.1.0/campaign/trigger/' . $encryptedTriggerId, 'POST', $campaignTriggerRequest);
         if ($this->client->getLastResponseCode() == 204)
         {
             return true;
